@@ -438,10 +438,11 @@ public class YandexGamesMono : YandexGamesSdkFacade
     public override void ShowFullscreenAdv()
     {
         DebugPrint("ShowFullscreenAdv");
-        var cbWrapper = new JavaScriptCallbackWrapper(_ysdk, "adv.showFullscreenAdv")
-            .AddCallback("OnClose", this, nameof(JsCallbackShowFullscreenAdvClose))
-            .AddCallback("OnError", this, nameof(JsCallbackShowFullscreenAdvError));
-        cbWrapper.Call();    
+        object cbWrapper = new JavaScriptCallbackWrapper()
+            .AddCallback("onClose", this, nameof(JsCallbackShowFullscreenAdvClose))
+            .AddCallback("onError", this, nameof(JsCallbackShowFullscreenAdvError))
+            .AsCallbacks();
+        JSWrapper.Call(_ysdk, "adv.showFullscreenAdv", new object[] { cbWrapper });
     }
 
     private void JsCallbackShowFullscreenAdvClose(object [] args)
@@ -461,12 +462,13 @@ public class YandexGamesMono : YandexGamesSdkFacade
     public override void ShowRewardedVideo()
     {
         DebugPrint("ShowRewardedVideo");
-        var cbWrapper = new JavaScriptCallbackWrapper(_ysdk, "adv.showRewardedVideo")
-            .AddCallback("OnOpen", this, nameof(JsCallbackShowRewardedVideoOpen))
-            .AddCallback("OnRewarded", this, nameof(JsCallbackShowRewardedVideoRewarded))
-            .AddCallback("OnClose", this, nameof(JsCallbackShowRewardedVideoClose))
-            .AddCallback("OnError", this, nameof(JsCallbackShowRewardedVideoError));
-        cbWrapper.Call();
+        var cbWrapper = new JavaScriptCallbackWrapper()
+            .AddCallback("onOpen", this, nameof(JsCallbackShowRewardedVideoOpen))
+            .AddCallback("onRewarded", this, nameof(JsCallbackShowRewardedVideoRewarded))
+            .AddCallback("onClose", this, nameof(JsCallbackShowRewardedVideoClose))
+            .AddCallback("onError", this, nameof(JsCallbackShowRewardedVideoError))
+            .AsCallbacks();
+        JSWrapper.Call(_ysdk, "adv.showRewardedVideo", new object[] { cbWrapper });
     }
 
     private void JsCallbackShowRewardedVideoOpen(object [] args)

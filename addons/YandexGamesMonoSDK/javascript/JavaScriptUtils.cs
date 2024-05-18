@@ -357,25 +357,22 @@ public class JSWrapper {
 }
 
 /// <summary>
-/// This class is a wrapper for the JavaScriptObject containing callback.
-/// It allows to pass to JS named callbacks and call them.
+/// This class is a wrapper for the JavaScriptObject containing set of callbacks.
+/// </summary>
 public class JavaScriptCallbackWrapper {
     private const string _jsFunction = "unversalCallbackWrapper__";
     private const string _jsCode = @"window.unversalCallbackWrapper__ = 
-        function(owner__, function__, names__, callbacks__) {
+        function(names__, callbacks__) {
             let callbacks = {};
             for (var i = 0; i < callbacks__.length; i++) {
-                callbacks[names__[i]] = cb[i];
+                callbacks[names__[i]] = callbacks__[i];
             }
-            return owner__.function__(callbacks);
+            return { callbacks: callbacks };
         }";
 
     private readonly JavaScriptObject _window;
-    private readonly JavaScriptObject _owner;
-    private readonly JavaScriptObject _function;
-
-    private List<string> _names = new List<string>();
-    private List<JavaScriptObject> _callbacks = new List<JavaScriptObject>();
+    private JavaScriptObject _names = JavaScript.CreateObject("Array") as JavaScriptObject;
+    private JavaScriptObject _callbacks = JavaScript.CreateObject("Array") as JavaScriptObject;
 
     /// <summary>
     /// Creates a new instance of JavaScriptCallbackWrapper.
@@ -383,11 +380,9 @@ public class JavaScriptCallbackWrapper {
     /// <param name="owner">Owner object containing function receiving callbacks.</param>
     /// <param name="function">Name of function receiving callbacks</param>
     /// <param name="window">Window object.  If null, window object will be created. </param>
-    public JavaScriptCallbackWrapper(JavaScriptObject owner, string function, JavaScriptObject window = null)
+    public JavaScriptCallbackWrapper(JavaScriptObject window = null)
     {
         JavaScript.Eval(_jsCode, true);
-        _owner = owner;
-        _function = JSWrapper.GetObject(owner, function) as JavaScriptObject;
         _window = window ?? JavaScript.GetInterface("window");
     }
 
@@ -401,17 +396,17 @@ public class JavaScriptCallbackWrapper {
     public JavaScriptCallbackWrapper AddCallback(string name, Godot.Object self, string method)
     {
         var callback = JavaScript.CreateCallback(self, method);
-        _names.Add(name);
-        _callbacks.Add(callback);
+        _names.Call("push", name);
+        _callbacks.Call("push", callback);
         return this;
     }
 
     /// <summary>
     /// Calls the function with the callbacks.
     /// </summary>
-    public void Call()
+    public JavaScriptObject AsCallbacks()
     {
-        _window.Call(_jsFunction, _owner, _function, _names.ToArray(), _callbacks.ToArray());
+        return _window.Call(_jsFunction, _names, _callbacks) as JavaScriptObject;
     }
 }
 
