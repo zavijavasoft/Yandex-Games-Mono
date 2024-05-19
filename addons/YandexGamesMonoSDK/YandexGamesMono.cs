@@ -119,7 +119,7 @@ public class YandexGamesMono : YandexGamesSdkFacade
         GetPayments();
         GetPlayer();
 
-        MaybeReady();
+        ReadyAllowed = _config.startOnReady;
     }
 
     private void SetUpEnvironment()
@@ -195,7 +195,10 @@ public class YandexGamesMono : YandexGamesSdkFacade
             EmitSignal(nameof(OnGetPlayer), false);
             EmitSignal(nameof(OnGetData), "");
         }
-        GetLeaderboards();
+        if (_config.defaultLeaderboard != null)
+        {
+            GetLeaderboards();
+        }
     }
 
     private void SetUpPlayer()

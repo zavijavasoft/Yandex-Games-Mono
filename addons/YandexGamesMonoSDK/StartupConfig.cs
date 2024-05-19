@@ -3,6 +3,10 @@
 /// </summary>
 public class YandexGamesStartupConfig {
 
+    /// <summary>
+    /// If true, the SDK will be started next after _Ready() method
+    /// No need to set ReadyAllowed property
+    /// </summary>
     public bool startOnReady = false;
 
     /// <summary>
